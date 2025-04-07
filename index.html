@@ -1,62 +1,116 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Caixa - Leitura de Código de Barras</title>
+    <title>Simulador de Maquininha</title>
     <style>
         body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
             font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #f4f4f4;
         }
-        #codigo_produto {
-            font-size: 20px;
+        .machine {
+            width: 300px;
+            height: 500px;
+            background: #333;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+        .screen {
+            width: 90%;
+            height: 100px;
+            background: #000;
+            border-radius: 10px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: #0f0;
         }
-        #resultado {
-            font-size: 18px;
-            color: green;
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+        .keypad button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .keypad button:hover {
+            background: #777;
+        }
+        .keypad .function {
+            background: #f00;
+        }
+        .keypad .function:hover {
+            background: #d00;
+        }
+        .keypad .enter {
+            background: #0f0;
+        }
+        .keypad .enter:hover {
+            background: #0d0;
         }
     </style>
 </head>
 <body>
-
-    <h1>Sistema de Caixa de Supermercado</h1>
-    <p>Escaneie o código de barras com seu celular. O código será lido automaticamente.</p>
-
-    <div id="codigo_produto">Código do Produto: <span id="codigo">Nenhum código lido</span></div>
-    <div id="resultado"></div>
-
+    <div class="machine">
+        <div class="screen" id="screen">R$ 0,00</div>
+        <div class="keypad">
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button class="function">C</button>
+            <button>0</button>
+            <button class="enter">Enter</button>
+        </div>
+    </div>
     <script>
-        let codigoProduto = '';
-        let resultadoElement = document.getElementById('resultado');
-        let codigoElement = document.getElementById('codigo');
+        const screen = document.getElementById('screen');
+        const buttons = document.querySelectorAll('.keypad button');
+        let input = '';
 
-        // Função que será chamada toda vez que uma tecla for pressionada
-        document.addEventListener('keydown', function(event) {
-            // Vamos verificar se é um caractere normal
-            if (event.key.length === 1) {
-                // Adiciona o caractere ao código
-                codigoProduto += event.key;
-                // Atualiza o display com o código sendo lido
-                codigoElement.textContent = codigoProduto;
-            }
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.textContent;
 
-            // Quando pressionar Enter, consideramos o código lido completo
-            if (event.key === 'Enter') {
-                processarCodigo(codigoProduto);
-                // Limpa o código após o processamento
-                codigoProduto = '';
-                codigoElement.textContent = 'Nenhum código lido';
-            }
+                if (value === 'C') {
+                    input = '';
+                } else if (value === 'Enter') {
+                    alert(`Valor confirmado: R$ ${input || '0,00'}`);
+                    input = '';
+                } else {
+                    input += value;
+                }
+
+                screen.textContent = `R$ ${input || '0,00'}`;
+            });
         });
-
-        // Função para processar o código lido
-        function processarCodigo(codigo) {
-            resultadoElement.textContent = `Código do produto: ${codigo} processado com sucesso!`;
-            // Aqui você pode adicionar o código para buscar o produto no banco de dados ou em uma lista.
-        }
     </script>
-
 </body>
 </html>

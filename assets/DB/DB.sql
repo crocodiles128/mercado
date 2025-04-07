@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19/03/2025 às 18:41
+-- Tempo de geração: 08/04/2025 às 00:51
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -34,6 +34,21 @@ CREATE TABLE `clientes` (
   `fidelidade` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `clientes`
+--
+
+
+
+-- ===============DEBUG==========================
+INSERT INTO `clientes` (`ID`, `CPF`, `nome`, `fidelidade`) VALUES
+(1, '24001140802', 'Nome Teste Veryfy', 0);
+-- ===============DEBUG==========================
+
+
+
+
+
 -- --------------------------------------------------------
 
 --
@@ -53,7 +68,7 @@ CREATE TABLE `produtos` (
 --
 
 INSERT INTO `produtos` (`ID`, `codigo`, `valor`, `nome`, `desconto_fidelidade`) VALUES
-(1, '9002490275013', 8.90, 'RedBull Maracujá & Melão', 0),
+(1, '9002490275013', 8.90, 'RedBull Maracujá & Melão', 1),
 (2, '7892840808013', 19.95, 'Gatorade Frutas Cítricas', 0),
 (3, '7897947612907', 12.99, 'XÔ inseto', 0);
 
@@ -69,6 +84,18 @@ CREATE TABLE `users` (
   `cargo` varchar(50) NOT NULL,
   `senha` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `users`
+--
+
+INSERT INTO `users` (`ID`, `nome`, `cargo`, `senha`) VALUES
+(1, 'João Silva', 'CAIXA', '$2y$10$sdEV8g6Eiece/RXJrywrXuSQR.WjZvYTiQBZWCPZTFHqGdu2outCK'),
+(2, 'Maria Oliveira', 'CAIXA', '$2y$10$uVtXYI1/UTVcLOQUrR4bLOl1Kd/cLXCJRgSi9DvLDy3TvplTsU/QW'),
+(3, 'Pedro Santos', 'CAIXA', '$2y$10$8YX0qe.L9hHQB45uQVgEiu08yKhL3HyIW5sQsHWWvKgcoLuwhGsbu'),
+(4, 'Camila Martins', 'GESTOR', '$2y$10$0e37ldeQrzCR9LIPGouJieYrAiaXdWdcnmzRaCxItkGUd/9B0zFo2'),
+(5, 'Jucelino Ku de Cheque', 'GESTOR', '$2y$10$wo5ueBIf2UU9QgJkkNuMnuXlM0mpok5GCFlWGsEl7fXRPXPfAqaeS'),
+(6, 'Croco', 'ADM', '$2y$10$3lk9xf/lLmrBVVpEioxPnOO5aJ0SmgayIjGf7LIsEvWEClaQ2VCdO');
 
 --
 -- Índices para tabelas despejadas
@@ -102,19 +129,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de tabela `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `produtos`
 --
 ALTER TABLE `produtos`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `users`
 --
 ALTER TABLE `users`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

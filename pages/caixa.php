@@ -12,6 +12,7 @@
 <body>
     <div class="container">
         <h1>Nome do Mercadinho!!</h1>
+        <div id="cliente_identificado" class="cliente-label" style="display: none;">Cliente: <span id="nome_cliente"></span></div> <!-- Label para o cliente -->
         <ul id="lista_produtos"></ul> <!-- Lista de produtos movida para cima -->
         <div id="total">Total: R$ 0.00</div> <!-- Adicionado elemento para exibir o total -->
         <div class="content">
@@ -42,6 +43,15 @@
         </div>
     </div>
 
+    <div id="modal_cliente" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Identificar Cliente</h2>
+            <p>Digite o CPF do cliente:</p>
+            <input type="text" id="cpf_cliente" placeholder="CPF">
+            <button id="confirmar_cliente">Confirmar</button>
+        </div>
+    </div>
+
     <script>
         let codigoProduto = '';
         let resultadoElement = document.getElementById('resultado');
@@ -49,6 +59,7 @@
         let listaProdutos = document.getElementById('lista_produtos');
         let totalElement = document.getElementById('total'); // Referência ao elemento do total
         let total = 0; // Variável para armazenar o total
+        let modalAberto = false; // Variável para rastrear se um modal está aberto
 
         // Função para buscar produto pelo código de barras
         async function buscarProduto(codigo) {
@@ -65,12 +76,24 @@
             }
         }
 
+        // Evento para abrir o modal ao pressionar "C"
+        document.addEventListener('keydown', function (event) {
+            if ((event.key === 'C' || event.key === 'c') && !modalAberto) {
+                event.preventDefault(); // Evita o comportamento padrão e impede que o "C" seja adicionado ao código de barras
+                abrirModalCliente();
+            }
+        });
+
         // Função que será chamada toda vez que uma tecla for pressionada
         document.addEventListener('keydown', async function(event) {
-            // Ignora eventos de teclado se o modal de remoção estiver aberto
-            if (modalRemover.style.display === 'block') {
+            // Ignora eventos de teclado se qualquer modal estiver aberto
+            if (modalAberto) {
                 return;
             }
+
+            // Verifica se o cliente está identificado
+            const clienteIdentificado = document.getElementById('cliente_identificado').style.display !== 'none';
+
 
             if (event.key.length === 1) {
                 // Adiciona o caractere ao código
@@ -111,6 +134,7 @@
 
         // Função para abrir o modal
         function abrirModalRemover() {
+            modalAberto = true; // Define que um modal está aberto
             modalRemover.style.display = 'block';
             codigoRemoverInput.value = ''; // Clear the input field
             senhaGestorInput.value = ''; // Clear the password field
@@ -119,6 +143,7 @@
 
         // Função para fechar o modal
         function fecharModalRemover() {
+            modalAberto = false; // Define que nenhum modal está aberto
             modalRemover.style.display = 'none';
         }
 
@@ -187,16 +212,73 @@
 
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
+                modalAberto = true; // Define que um modal está aberto
                 modalLogout.style.display = 'block';
             }
         });
 
         confirmarLogout.addEventListener('click', function () {
+            modalAberto = false; // Define que nenhum modal está aberto
             window.location.href = 'index.php';
         });
 
         cancelarLogout.addEventListener('click', function () {
+            modalAberto = false; // Define que nenhum modal está aberto
             modalLogout.style.display = 'none';
+        });
+
+        // Referências ao modal de cliente e seus elementos
+        const modalCliente = document.getElementById('modal_cliente');
+        const cpfClienteInput = document.getElementById('cpf_cliente');
+        const confirmarClienteBtn = document.getElementById('confirmar_cliente');
+
+        // Função para abrir o modal de cliente
+        function abrirModalCliente() {
+            modalAberto = true; // Define que um modal está aberto
+            modalCliente.style.display = 'block';
+            cpfClienteInput.value = ''; // Limpa o campo de CPF
+            cpfClienteInput.focus();
+        }
+
+        // Função para fechar o modal de cliente
+        function fecharModalCliente() {
+            modalAberto = false; // Define que nenhum modal está aberto
+            modalCliente.style.display = 'none';
+        }
+
+        // Evento para confirmar a identificação do cliente
+        confirmarClienteBtn.addEventListener('click', async function () {
+            const cpf = cpfClienteInput.value.trim();
+            if (!cpf) {
+                alert('Por favor, insira o CPF do cliente.');
+                return;
+            }
+
+            try {
+                const response = await fetch('../assets/api/get_cliente.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cpf })
+                });
+
+                if (response.ok) {
+                    const cliente = await response.json();
+                    if (cliente) {
+                        document.getElementById('nome_cliente').textContent = cliente.nome;
+                        document.getElementById('cliente_identificado').style.display = 'block'; // Exibe a label
+                        alert(`Cliente identificado: ${cliente.nome}`);
+                    } else {
+                        alert('Cliente não encontrado.');
+                    }
+                } else {
+                    alert('Erro ao buscar cliente.');
+                }
+            } catch (error) {
+                console.error('Erro ao buscar cliente:', error);
+                alert('Erro ao buscar cliente.');
+            }
+
+            fecharModalCliente();
         });
     </script>
     <style>
@@ -211,6 +293,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .cliente-label {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .modal-content {
@@ -254,6 +348,11 @@
 
         .modal-content button:last-child {
             background-color: #6c757d;
+            color: white;
+        }
+
+        .modal-content button#confirmar_cliente {
+            background-color: #007bff;
             color: white;
         }
     </style>
