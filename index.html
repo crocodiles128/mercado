@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Caixa - Leitura de Código de Barras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #codigo_produto {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        #resultado {
+            font-size: 18px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Sistema de Caixa de Supermercado</h1>
+    <p>Escaneie o código de barras com seu celular. O código será lido automaticamente.</p>
+
+    <div id="codigo_produto">Código do Produto: <span id="codigo">Nenhum código lido</span></div>
+    <div id="resultado"></div>
+
+    <script>
+        let codigoProduto = '';
+        let resultadoElement = document.getElementById('resultado');
+        let codigoElement = document.getElementById('codigo');
+
+        // Função que será chamada toda vez que uma tecla for pressionada
+        document.addEventListener('keydown', function(event) {
+            // Vamos verificar se é um caractere normal
+            if (event.key.length === 1) {
+                // Adiciona o caractere ao código
+                codigoProduto += event.key;
+                // Atualiza o display com o código sendo lido
+                codigoElement.textContent = codigoProduto;
+            }
+
+            // Quando pressionar Enter, consideramos o código lido completo
+            if (event.key === 'Enter') {
+                processarCodigo(codigoProduto);
+                // Limpa o código após o processamento
+                codigoProduto = '';
+                codigoElement.textContent = 'Nenhum código lido';
+            }
+        });
+
+        // Função para processar o código lido
+        function processarCodigo(codigo) {
+            resultadoElement.textContent = `Código do produto: ${codigo} processado com sucesso!`;
+            // Aqui você pode adicionar o código para buscar o produto no banco de dados ou em uma lista.
+        }
+    </script>
+
+</body>
+</html>
