@@ -76,6 +76,27 @@
             }
         }
 
+        // Função para fechar todos os modais
+        function fecharTodosModais() {
+            modalRemover.style.display = 'none';
+            modalLogout.style.display = 'none';
+            modalCliente.style.display = 'none';
+            modalFinalizacao.style.display = 'none';
+            modalAberto = false;
+        }
+
+        // Função para exibir mensagens temporárias em um modal
+        function exibirMensagem(mensagem) {
+            const modalMensagem = document.createElement('div');
+            modalMensagem.className = 'modal-mensagem';
+            modalMensagem.textContent = mensagem;
+            document.body.appendChild(modalMensagem);
+
+            setTimeout(() => {
+                modalMensagem.remove();
+            }, 5000); // Exibe por 5 segundos
+        }
+
         // Evento para abrir o modal ao pressionar "C"
         document.addEventListener('keydown', function (event) {
             if ((event.key === 'C' || event.key === 'c') && !modalAberto) {
@@ -134,6 +155,7 @@
 
         // Função para abrir o modal
         function abrirModalRemover() {
+            fecharTodosModais(); // Fecha qualquer modal aberto
             modalAberto = true; // Define que um modal está aberto
             modalRemover.style.display = 'block';
             codigoRemoverInput.value = ''; // Clear the input field
@@ -156,7 +178,7 @@
             const senha = senhaGestorInput.value;
 
             if (!codigo) {
-                alert('Por favor, insira o código de barras do produto.');
+                exibirMensagem('Por favor, insira o código de barras do produto.');
                 return;
             }
 
@@ -181,20 +203,20 @@
                             total -= precoRemovido;
                             totalElement.textContent = `Total: R$ ${total.toFixed(2)}`;
                             listaProdutos.removeChild(itemEncontrado);
-                            alert('Produto removido com sucesso.');
+                            exibirMensagem('Produto removido com sucesso.');
                             fecharModalRemover();
                         } else {
-                            alert('Produto com o código informado não encontrado na lista.');
+                            exibirMensagem('Produto com o código informado não encontrado na lista.');
                         }
                     } else {
-                        alert('Senha inválida. Apenas GESTOR ou ADM podem remover produtos.');
+                        exibirMensagem('Senha inválida. Apenas GESTOR ou ADM podem remover produtos.');
                     }
                 } else {
-                    alert('Erro ao verificar a senha.');
+                    exibirMensagem('Erro ao verificar a senha.');
                 }
             } catch (error) {
                 console.error('Erro ao verificar a senha:', error);
-                alert('Erro ao verificar a senha.');
+                exibirMensagem('Erro ao verificar a senha.');
             }
         });
 
@@ -206,14 +228,32 @@
             }
         });
 
+        // Evento para enviar o formulário do modal de remoção com "Enter"
+        codigoRemoverInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                confirmarRemocaoBtn.click();
+            }
+        });
+        senhaGestorInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                confirmarRemocaoBtn.click();
+            }
+        });
+
         const modalLogout = document.getElementById('modal_logout');
         const confirmarLogout = document.getElementById('confirmar_logout');
         const cancelarLogout = document.getElementById('cancelar_logout');
 
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
-                modalAberto = true; // Define que um modal está aberto
-                modalLogout.style.display = 'block';
+                if (modalLogout.style.display === 'block') {
+                    modalLogout.style.display = 'none'; // Fecha o modal se já estiver aberto
+                    modalAberto = false; // Define que nenhum modal está aberto
+                } else {
+                    fecharTodosModais(); // Fecha qualquer modal aberto
+                    modalAberto = true; // Define que um modal está aberto
+                    modalLogout.style.display = 'block';
+                }
             }
         });
 
@@ -227,6 +267,13 @@
             modalLogout.style.display = 'none';
         });
 
+        // Evento para confirmar o logout com "Enter"
+        document.addEventListener('keydown', function (event) {
+            if (modalLogout.style.display === 'block' && event.key === 'Enter') {
+                confirmarLogout.click();
+            }
+        });
+
         // Referências ao modal de cliente e seus elementos
         const modalCliente = document.getElementById('modal_cliente');
         const cpfClienteInput = document.getElementById('cpf_cliente');
@@ -234,6 +281,7 @@
 
         // Função para abrir o modal de cliente
         function abrirModalCliente() {
+            fecharTodosModais(); // Fecha qualquer modal aberto
             modalAberto = true; // Define que um modal está aberto
             modalCliente.style.display = 'block';
             cpfClienteInput.value = ''; // Limpa o campo de CPF
@@ -250,9 +298,13 @@
         confirmarClienteBtn.addEventListener('click', async function () {
             const cpf = cpfClienteInput.value.trim();
             if (!cpf) {
-                alert('Por favor, insira o CPF do cliente.');
+                exibirMensagem('Por favor, insira o CPF do cliente.');
                 return;
             }
+
+            // Desidentificar cliente atual antes de buscar o novo
+            document.getElementById('nome_cliente').textContent = '';
+            document.getElementById('cliente_identificado').style.display = 'none';
 
             try {
                 const response = await fetch('../assets/api/get_cliente.php', {
@@ -266,20 +318,106 @@
                     if (cliente) {
                         document.getElementById('nome_cliente').textContent = cliente.nome;
                         document.getElementById('cliente_identificado').style.display = 'block'; // Exibe a label
-                        alert(`Cliente identificado: ${cliente.nome}`);
+                        exibirMensagem(`Cliente identificado: ${cliente.nome}`);
                     } else {
-                        alert('Cliente não encontrado.');
+                        exibirMensagem('Cliente não encontrado.');
                     }
                 } else {
-                    alert('Erro ao buscar cliente.');
+                    exibirMensagem('Erro ao buscar cliente.');
                 }
             } catch (error) {
                 console.error('Erro ao buscar cliente:', error);
-                alert('Erro ao buscar cliente.');
+                exibirMensagem('Erro ao buscar cliente.');
             }
 
             fecharModalCliente();
         });
+
+        // Evento para enviar o formulário do modal de cliente com "Enter"
+        cpfClienteInput.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                confirmarClienteBtn.click();
+            }
+        });
+
+        // Função para abrir o modal de finalização
+        function abrirModalFinalizacao() {
+            fecharTodosModais(); // Fecha qualquer modal aberto
+            modalAberto = true; // Define que um modal está aberto
+            modalFinalizacao.style.display = 'block';
+        }
+
+        // Função para fechar o modal de finalização
+        function fecharModalFinalizacao() {
+            modalAberto = false; // Define que nenhum modal está aberto
+            modalFinalizacao.style.display = 'none';
+        }
+
+        // Evento para abrir o modal de finalização ao pressionar "F"
+        document.addEventListener('keydown', function (event) {
+            if ((event.key === 'F' || event.key === 'f') && !modalAberto) {
+                event.preventDefault(); // Evita o comportamento padrão
+                abrirModalFinalizacao();
+            }
+        });
+
+        // Referências ao modal de finalização e seus elementos
+        const modalFinalizacao = document.createElement('div');
+        modalFinalizacao.id = 'modal_finalizacao';
+        modalFinalizacao.className = 'modal';
+        modalFinalizacao.style.display = 'none';
+        modalFinalizacao.innerHTML = `
+            <div class="modal-content">
+                <h2>Finalizar Compra</h2>
+                <p>Deseja realmente finalizar a compra?</p>
+                <button id="confirmar_finalizacao">Sim</button>
+                <button id="cancelar_finalizacao">Não</button>
+            </div>
+        `;
+        document.body.appendChild(modalFinalizacao);
+
+        const confirmarFinalizacaoBtn = modalFinalizacao.querySelector('#confirmar_finalizacao');
+        const cancelarFinalizacaoBtn = modalFinalizacao.querySelector('#cancelar_finalizacao');
+
+        // Evento para confirmar a finalização
+        confirmarFinalizacaoBtn.addEventListener('click', function () {
+            exibirMensagem('Compra finalizada com sucesso!');
+            fecharModalFinalizacao();
+            // Reinicia o sistema (limpa lista de produtos e total)
+            listaProdutos.innerHTML = '';
+            total = 0;
+            totalElement.textContent = 'Total: R$ 0.00';
+        });
+
+        // Evento para cancelar a finalização
+        cancelarFinalizacaoBtn.addEventListener('click', fecharModalFinalizacao);
+
+        // Adicionar estilo para o modal de mensagem
+        const style = document.createElement('style');
+        style.textContent = `
+            .modal-mensagem {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #007bff;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 16px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                animation: fade-in-out 5s ease-in-out;
+            }
+
+            @keyframes fade-in-out {
+                0% { opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
     <style>
         /* Estilo básico para o modal */
